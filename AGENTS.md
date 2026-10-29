@@ -86,45 +86,7 @@ Los `href` entre mockups definen el flujo esperado (login staff → `/feed`, log
 
 ## Notas de repo
 
-- `experimental.agentFeedback: true` → `next dev` escribe un bloque `<!-- BEGIN:nextjs-agent-feedback -->` en este `AGENTS.md`. No lo borres: commitealo junto con tu trabajo (igual que el bloque de reglas de Next).
-- `.env*` está ignorado: **no hay secretos ni variables de entorno documentadas** en el repo.
-
-## Spec Driven Development - Skills
-
-- /spec usaremos esta habilidad para crear las especificaciones.
-- /spec-impl usaremos esta habilidad para hacer las implementaciones.
-
-## Subagentes disponibles
-
-### Subagentes del sistema
-
-- **explore**: Agente rápido especializado en explorar codebases. Usar cuando necesitás encontrar archivos por patrones (ej: `"**/*.tsx"`), buscar código por palabras clave, o responder preguntas sobre el código. Niveles de exhaustividad: `"quick"` (búsquedas básicas), `"medium"` (exploración moderada), `"very thorough"` (análisis exhaustivo en múltiples ubicaciones).
-- **general**: Agente de propósito general para investigar preguntas complejas y ejecutar tareas multi-paso. Usar para ejecutar múltiples unidades de trabajo en paralelo.
-
-### Agentes personalizados del proyecto
-
-- **spec-checker** (`.opencode/agents/spec-checker.md`): Verifica los criterios de aceptación de un spec, marcando checks en el archivo spec y reportando resultados. Flujo de trabajo:
-  1. Recibe la ruta de un spec (ej: `specs/01-feed-home.md`)
-  2. Extrae los checkboxes `- [ ]` de la sección "Acceptance criteria"
-  3. Verifica cada criterio según su tipo (build/lint, estructura de archivos, patrones de import, contenido de código, Next.js best practices con Context7, verificación visual con Playwright)
-  4. Actualiza el spec marcando `- [x]` si pasa o dejando `- [ ]` + nota si falla
-  5. Genera un resumen final con X/Y criterios pasados y próximos pasos
-  
-  **Uso**: Después de implementar una feature según un spec, correr spec-checker para validar que todos los criterios de aceptación están satisfechos antes de considerar la tarea completa.
-
-## Estructura de carpetas (convención, spec 01)
-
-- `components/ui/` — primitivas agnósticas de dominio (Button, Chip, Card, Avatar, NavLink, IconBox, PhotoPlaceholder, SectionLabel, PageHeader, Icons). No importan de `components/**` ni `lib/mocks/**`.
-- `components/layout/` — chrome compartido entre pantallas (AppLayout, Sidebar, MobileTopBar, Drawer).
-- `components/<dominio>/` — composición de primitivas por dominio (`feed/`, y a futuro `ninos/`, `avisos/` …).
-- `lib/types/` — tipos de dominio compartibles (`feed.ts`, …).
-- `lib/mocks/` — datos mock tipados, un módulo por dominio (`feed.ts`, …). Los componentes no contienen datos; `page.tsx` importa y pasa por props.
-
-## Reglas de código
-
-- Usar código limpio. Nombres de variables, funciones, nombres en general, en inglés.
-
-<!-- BEGIN:nextjs-agent-feedback -->
+- `experimental.agentFeedback: true` → `next dev` escribe un bloque `<!-- BEGIN:nextjs-agent-feedback -->
 
 ## Report Next.js feedback
 
