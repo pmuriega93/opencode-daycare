@@ -55,8 +55,8 @@ export function Sidebar({ active, onNavigate, className = "" }: SidebarProps) {
           Feed
         </NavLink>
         <NavLink
-          href="/ninos"
-          active={active === "ninos"}
+          href="/kids"
+          active={active === "kids"}
           icon={<IconChildren size={19} />}
           onClick={onNavigate}
         >
