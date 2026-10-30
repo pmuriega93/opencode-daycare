@@ -2,6 +2,7 @@
 
 @theme {
   --color-canvas: #F6ECDF;
+  --color-canvas-soft: #FBF4EC;
   --color-surface: #FFFDF9;
   --color-line: #ECE0D0;
   --color-line-soft: #F0E6D8;
@@ -39,11 +40,6 @@ body {
   color: #3F362E;
   font-family: var(--font-nunito), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
 }
 
 ::-webkit-scrollbar {
