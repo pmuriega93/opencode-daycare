@@ -14,8 +14,7 @@ App de guardería. Next.js **16.4.2** (App Router + Turbopack), React 19.3, Tail
 
 ## Estado actual
 
-- `app/` sigue con el template de create-next-app (`page.tsx`, `layout.tsx`, `globals.css`). **No hay ninguna ruta real todavía**: el repo es diseño + scaffolding, y el trabajo es implementar las pantallas de `references/`.
-- No hay backend, API, base de datos, tests ni estado global. Hay un backend planeado pero **sin stack decidido en el repo**: no inventes endpoints ni instales dependencias de backend sin preguntar. Mientras tanto, poné los datos mock en un módulo aparte (`lib/` o `data/`) para poder enchufar la API después.
+- Rutas implementadas: `/` (feed, SPEC 01), `/kids` + `/kids/[id]` (SPEC 02), `/login` + `/activate-account` (SPEC 03). El resto del mapeo sigue sin ruta (404 por diseño hasta sus specs). No hay backend, API, base de datos, tests ni estado global. Hay un backend planeado pero **sin stack decidido en el repo**: no inventes endpoints ni instales dependencias de backend sin preguntar. Mientras tanto, poné los datos mock en un módulo aparte (`lib/` o `data/`) para poder enchufar la API después.
 - `references/` es material de diseño: **no es código de la app** (no lo imports, no lo lintees, no lo edites salvo que el usuario lo pida).
 
 ## Fuente de verdad del diseño
@@ -26,33 +25,33 @@ App de guardería. Next.js **16.4.2** (App Router + Turbopack), React 19.3, Tail
 
 ### Mockup → ruta (mapeo canónico; mantenelo estable entre sesiones)
 
-| Mockup                        | Pantalla                              | Ruta en `app/`                                      |
-| ----------------------------- | ------------------------------------- | --------------------------------------------------- |
-| `index.dc.html`               | Índice de pantallas                   | sin ruta por ahora (spec futura)                    |
-| `login.dc.html`               | Iniciar sesión (staff o familia)      | `app/login/page.tsx`                                |
-| `activar-cuenta.dc.html`      | Activar cuenta (código de invitación) | `app/activar-cuenta/page.tsx`                       |
-| `feed.dc.html`                | Feed de la guardería                  | `app/page.tsx` (home)                               |
-| `crear-publicacion.dc.html`   | Crear publicación                     | `app/crear-publicacion/page.tsx`                    |
-| `ninos.dc.html`               | Niños (sala)                          | `app/ninos/page.tsx`                                |
-| `perfil-nino.dc.html`         | Perfil del niño                       | `app/ninos/[id]/page.tsx`                           |
-| `agregar-nino.dc.html`        | Agregar/editar niño (mismo form)      | `app/ninos/[id]/editar/page.tsx` (+ `/ninos/nuevo`) |
-| `vincular-padre.dc.html`      | Vincular padre                        | `app/vincular-padre/page.tsx`                       |
-| `avisos.dc.html`              | Avisos                                | `app/avisos/page.tsx`                               |
-| `mi-cuenta.dc.html`           | Mi cuenta (staff)                     | `app/mi-cuenta/page.tsx`                            |
-| `familia-feed.dc.html`        | Feed del padre                        | `app/familia/feed/page.tsx`                         |
-| `detalle-publicacion.dc.html` | Detalle de publicación                | `app/publicaciones/[id]/page.tsx`                   |
-| `foto.dc.html`                | Foto a pantalla completa              | `app/fotos/[id]/page.tsx`                           |
-| `resumen-dia.dc.html`         | Resumen del día                       | `app/familia/resumen-dia/page.tsx`                  |
-| `familia-cuenta.dc.html`      | Mi cuenta (familia)                   | `app/familia/mi-cuenta/page.tsx`                    |
+| Mockup                        | Pantalla                              | Ruta en `app/`                                        |
+| ----------------------------- | ------------------------------------- | ----------------------------------------------------- |
+| `index.dc.html`               | Índice de pantallas                   | sin ruta por ahora (spec futura)                      |
+| `login.dc.html`               | Iniciar sesión (staff o familia)      | `app/login/page.tsx`                                  |
+| `activar-cuenta.dc.html`      | Activar cuenta (código de invitación) | `app/activate-account/page.tsx`                       |
+| `feed.dc.html`                | Feed de la guardería                  | `app/page.tsx` (home)                                 |
+| `crear-publicacion.dc.html`   | Crear publicación                     | `app/crear-publicacion/page.tsx`                      |
+| `ninos.dc.html`               | Niños (sala)                          | `app/kids/page.tsx`                                   |
+| `perfil-nino.dc.html`         | Perfil del niño                       | `app/kids/[id]/page.tsx`                              |
+| `agregar-nino.dc.html`        | Agregar/editar niño (mismo form)      | `app/kids/[id]/editar/page.tsx` (+ `/kids/nuevo`)     |
+| `vincular-padre.dc.html`      | Vincular padre                        | `app/vincular-padre/page.tsx`                         |
+| `avisos.dc.html`              | Avisos                                | `app/avisos/page.tsx`                                 |
+| `mi-cuenta.dc.html`           | Mi cuenta (staff)                     | `app/mi-cuenta/page.tsx`                              |
+| `familia-feed.dc.html`        | Feed del padre                        | `app/familia/feed/page.tsx`                           |
+| `detalle-publicacion.dc.html` | Detalle de publicación                | `app/publicaciones/[id]/page.tsx`                     |
+| `foto.dc.html`                | Foto a pantalla completa              | `app/fotos/[id]/page.tsx`                             |
+| `resumen-dia.dc.html`         | Resumen del día                       | `app/familia/resumen-dia/page.tsx`                    |
+| `familia-cuenta.dc.html`      | Mi cuenta (familia)                   | `app/familia/mi-cuenta/page.tsx`                      |
 
-Los `href` entre mockups definen el flujo esperado (login staff → `/feed`, login familia → `/familia/feed`, cerrar sesión → `/login`, etc.): esas rutas tienen que existir.
+Los `href` entre mockups definen el flujo esperado (login → `/`, activar mi cuenta → `/familia/feed`, cerrar sesión → `/login`, etc.): esas rutas tienen que existir.
 
 ## Sistema de diseño (los mockups son inline styles; llevalos a Tailwind)
 
 - **Implementá con utilidades Tailwind + tokens**, no copies los `style="..."` inline del mockup. Portá la paleta y las fuentes a `app/globals.css` (`@theme`), y usá clases semánticas (`bg-surface`, `text-muted`, `border-line`, `bg-accent`…).
 - Paleta: fondo `#F6ECDF` · superficie `#FFFDF9` · borde `#ECE0D0` (inputs `#EADFD0`, divisores `#F0E6D8`/`#E7DAC8`) · texto `#3F362E` / `#4A4038` / `#6E6359` · muted `#94887B` / `#A89A8B` · accent `#D9583C` / `#C5503A` / `#E0654A` / `#F2937A` · gradiente de botón `linear-gradient(180deg,#F4977E,#EE8164)` · peach `#FBE3D8` · chips/semáforos: verde `#3E9B6C` sobre `#CFEBD8`, celeste `#1F7A93` sobre `#A9D9E8`, mordeo `#7B5FC0` sobre `#C9B6E8`. Los avatares usan un pastel por niño (`#A9D9E8`, `#F4B8CC`, `#B9DEC4`, `#F4DC8E`…).
-- Tipografías: **Fredoka** (títulos) + **Nunito** (texto) vía `next/font/google`. `app/layout.tsx` todavía carga Geist: reemplazalo.
-- Layout: sidebar fijo de 248px (salvo login/activar-cuenta/index/foto), contenido centrado `max-width: 760px` (feed) / `720px` (familia), padding `34px 40px 80px`, cards `rounded-20px` con sombra suave.
+- Tipografías: **Fredoka** (títulos) + **Nunito** (texto) vía `next/font/google`, ya cargadas en `app/layout.tsx`.
+- Layout: sidebar fijo de 248px (salvo login/activate-account/index/foto), contenido centrado `max-width: 760px` (feed) / `720px` (familia), padding `34px 40px 80px`, cards `rounded-20px` con sombra suave.
 - La UI y los textos van en **español (rioplatense)**, tal cual el mockup.
 
 ## Comandos
