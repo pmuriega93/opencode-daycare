@@ -72,3 +72,15 @@ export function getParentCountLabel(parents: Parent[]): string {
   if (parents.length === 1) return "1 padre vinculado";
   return `${parents.length} padres vinculados`;
 }
+
+export type AddKidFormValues = {
+  name: string; // "Martina López"
+  birthdate: string; // valor con máscara: "12/03/2022"
+  room: string; // "" | "Soles" | "Lunas" | "Estrellas"
+  allergies: string; // texto libre: "Maní, Lactosa"
+  notes: string; // texto libre
+};
+
+export type AddKidFieldErrors = Partial<
+  Record<"name" | "birthdate" | "room", string>
+>;
