@@ -34,7 +34,7 @@ App de guardería. Next.js **16.4.2** (App Router + Turbopack), React 19.3, Tail
 | `crear-publicacion.dc.html`   | Crear publicación                     | `app/crear-publicacion/page.tsx`                      |
 | `ninos.dc.html`               | Niños (sala)                          | `app/kids/page.tsx`                                   |
 | `perfil-nino.dc.html`         | Perfil del niño                       | `app/kids/[id]/page.tsx`                              |
-| `agregar-nino.dc.html`        | Agregar/editar niño (mismo form)      | `app/kids/[id]/editar/page.tsx` (+ `/kids/nuevo`)     |
+| `agregar-nino.dc.html`        | Agregar niño (modal sobre Niños)      | modal en `app/kids/page.tsx` (edición: spec futura)   |
 | `vincular-padre.dc.html`      | Vincular padre                        | `app/vincular-padre/page.tsx`                         |
 | `avisos.dc.html`              | Avisos                                | `app/avisos/page.tsx`                                 |
 | `mi-cuenta.dc.html`           | Mi cuenta (staff)                     | `app/mi-cuenta/page.tsx`                              |

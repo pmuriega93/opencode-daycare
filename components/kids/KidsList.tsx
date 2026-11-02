@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { KidCard } from "@/components/kids/KidCard";
+import { salas } from "@/lib/mocks/kids";
 import type { Kid } from "@/lib/types/kids";
 
 type KidsListProps = {
@@ -18,6 +19,14 @@ export function KidsList({ kids }: KidsListProps) {
         return firstName.includes(trimmedQuery);
       })
     : kids;
+
+  // Una sección por sala, en el orden de `salas`; las vacías se ocultan.
+  const sections = salas
+    .map((room) => ({
+      room,
+      kids: filteredKids.filter((k) => k.room === room),
+    }))
+    .filter((section) => section.kids.length > 0);
 
   return (
     <>
@@ -44,21 +53,24 @@ export function KidsList({ kids }: KidsListProps) {
         />
       </div>
 
-      <div className="mb-3.5 flex items-center gap-3">
-        <span className="text-[12.5px] font-extrabold tracking-[0.8px] text-text">
-          SALA SOLES
-        </span>
-        <span className="text-[13px] text-muted-2">
-          {filteredKids.length} {filteredKids.length === 1 ? "niño" : "niños"}
-        </span>
-        <span className="h-px flex-1 bg-line-div" />
-      </div>
-
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-        {filteredKids.map((kid) => (
-          <KidCard key={kid.id} kid={kid} />
-        ))}
-      </div>
+      {sections.map(({ room, kids: roomKids }) => (
+        <section key={room} className="mb-[26px] last:mb-0">
+          <div className="mb-3.5 flex items-center gap-3">
+            <span className="text-[12.5px] font-extrabold tracking-[0.8px] text-text">
+              SALA {room.toUpperCase()}
+            </span>
+            <span className="text-[13px] text-muted-2">
+              {roomKids.length} {roomKids.length === 1 ? "niño" : "niños"}
+            </span>
+            <span className="h-px flex-1 bg-line-div" />
+          </div>
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+            {roomKids.map((kid) => (
+              <KidCard key={kid.id} kid={kid} />
+            ))}
+          </div>
+        </section>
+      ))}
 
       {filteredKids.length === 0 && (
         <div className="py-12 text-center text-[15px] text-muted-2">

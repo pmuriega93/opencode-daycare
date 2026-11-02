@@ -187,3 +187,8 @@ export const kids: Kid[] = [
 export function getKidById(id: string): Kid | undefined {
   return kids.find((k) => k.id === id);
 }
+
+/**
+ * Salas disponibles para el alta de niños (mock).
+ */
+export const salas = ["Soles", "Lunas", "Estrellas"] as const;
