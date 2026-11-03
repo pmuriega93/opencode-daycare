@@ -1,9 +1,8 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { SectionLabel } from "@/components/ui/SectionLabel";
 import { FeedComposer } from "@/components/feed/FeedComposer";
-import { PostCard } from "@/components/feed/PostCard";
-import { headerSummary, posts, user } from "@/lib/mocks/feed";
+import { FeedContent } from "@/components/feed/FeedContent";
+import { headerSummary, user } from "@/lib/mocks/feed";
 
 export default function Home() {
   return (
@@ -15,12 +14,7 @@ export default function Home() {
           subtitle={`${headerSummary.children} niños · ${headerSummary.date}`}
         />
         <FeedComposer initial={user.initial} />
-        <SectionLabel>PUBLICADO HOY</SectionLabel>
-        <div className="flex flex-col gap-4">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
+        <FeedContent />
       </div>
     </AppLayout>
   );

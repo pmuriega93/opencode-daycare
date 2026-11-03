@@ -15,10 +15,16 @@ import {
 type SidebarProps = {
   active: string;
   onNavigate?: () => void;
+  onNewPost?: () => void;
   className?: string;
 };
 
-export function Sidebar({ active, onNavigate, className = "" }: SidebarProps) {
+export function Sidebar({
+  active,
+  onNavigate,
+  onNewPost,
+  className = "",
+}: SidebarProps) {
   return (
     <aside
       className={`flex h-screen w-[248px] flex-none flex-col bg-surface px-4 py-6 ${className}`}
@@ -40,7 +46,7 @@ export function Sidebar({ active, onNavigate, className = "" }: SidebarProps) {
         </div>
       </Link>
 
-      <Button href="/crear-publicacion" className="mb-[18px] w-full">
+      <Button onClick={onNewPost} className="mb-[18px] w-full">
         <IconPlus size={17} className="text-white" />
         Nueva publicación
       </Button>

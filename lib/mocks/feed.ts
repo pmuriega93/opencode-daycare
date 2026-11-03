@@ -29,7 +29,7 @@ export const posts: Post[] = [
     recipient: "familia de Mateo",
     chip: "activity",
     text: "Pintamos con témperas esta mañana. Mateo eligió el azul para todo y se concentró un montón mezclando colores.",
-    photo: { alt: "Foto · pintando con témperas" },
+    photos: [{ alt: "Foto · pintando con témperas" }],
     likes: 5,
     comments: 2,
   },

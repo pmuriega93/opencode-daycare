@@ -7,9 +7,10 @@ type DrawerProps = {
   open: boolean;
   active: string;
   onClose: () => void;
+  onNewPost: () => void;
 };
 
-export function Drawer({ open, active, onClose }: DrawerProps) {
+export function Drawer({ open, active, onClose, onNewPost }: DrawerProps) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
@@ -20,7 +21,12 @@ export function Drawer({ open, active, onClose }: DrawerProps) {
         className="absolute inset-0 bg-black/30"
       />
       <div className="relative h-full w-[248px] max-w-[80vw]">
-        <Sidebar active={active} onNavigate={onClose} className="h-full" />
+        <Sidebar
+          active={active}
+          onNavigate={onClose}
+          onNewPost={onNewPost}
+          className="h-full"
+        />
         <button
           type="button"
           aria-label="Cerrar"
