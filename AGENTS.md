@@ -14,7 +14,7 @@ App de guardería. Next.js **16.4.2** (App Router + Turbopack), React 19.3, Tail
 
 ## Estado actual
 
-- Rutas implementadas: `/` (feed, SPEC 01), `/kids` + `/kids/[id]` (SPEC 02), `/login` + `/activate-account` (SPEC 03). El resto del mapeo sigue sin ruta (404 por diseño hasta sus specs). No hay backend, API, base de datos, tests ni estado global. Hay un backend planeado pero **sin stack decidido en el repo**: no inventes endpoints ni instales dependencias de backend sin preguntar. Mientras tanto, poné los datos mock en un módulo aparte (`lib/` o `data/`) para poder enchufar la API después.
+- Rutas implementadas: `/` (feed, SPEC 01 + SPEC 06), `/kids` + `/kids/[id]` (SPEC 02 + SPEC 04/05), `/login` + `/activate-account` (SPEC 03). El resto del mapeo sigue sin ruta (404 por diseño hasta sus specs). No hay backend, API, base de datos ni tests. Hay un backend planeado pero **sin stack decidido en el repo**: no inventes endpoints ni instales dependencias de backend sin preguntar. Mientras tanto, poné los datos mock en un módulo aparte (`lib/` o `data/`) para poder enchufar la API después. El único estado global es el Context del feed (`components/feed/FeedProvider.tsx`, SPEC 06): publicaciones, modal de crear publicación y toast, todo en memoria y perdido al recargar.
 - `references/` es material de diseño: **no es código de la app** (no lo imports, no lo lintees, no lo edites salvo que el usuario lo pida).
 
 ## Fuente de verdad del diseño
@@ -31,7 +31,7 @@ App de guardería. Next.js **16.4.2** (App Router + Turbopack), React 19.3, Tail
 | `login.dc.html`               | Iniciar sesión (staff o familia)      | `app/login/page.tsx`                                  |
 | `activar-cuenta.dc.html`      | Activar cuenta (código de invitación) | `app/activate-account/page.tsx`                       |
 | `feed.dc.html`                | Feed de la guardería                  | `app/page.tsx` (home)                                 |
-| `crear-publicacion.dc.html`   | Crear publicación                     | `app/crear-publicacion/page.tsx`                      |
+| `crear-publicacion.dc.html`   | Crear publicación                     | modal en `app/page.tsx` (feed)                        |
 | `ninos.dc.html`               | Niños (sala)                          | `app/kids/page.tsx`                                   |
 | `perfil-nino.dc.html`         | Perfil del niño                       | `app/kids/[id]/page.tsx`                              |
 | `agregar-nino.dc.html`        | Agregar niño (modal sobre Niños)      | modal en `app/kids/page.tsx` (edición: spec futura)   |

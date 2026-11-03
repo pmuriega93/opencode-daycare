@@ -51,12 +51,21 @@ export function PostCard({ post }: PostCardProps) {
 
       <p className="m-0 text-[15.5px] leading-[1.55] text-text-2">{post.text}</p>
 
-      {post.photo ? (
+      {post.photos?.[0] ? (
         <Link href={`/fotos/${post.id}`} className="mt-[14px] block">
-          <PhotoPlaceholder height={200}>
-            <IconPhoto size={30} />
-            <span className="text-[13.5px]">{post.photo.alt}</span>
-          </PhotoPlaceholder>
+          {post.photos[0].src ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={post.photos[0].src}
+              alt={post.photos[0].alt}
+              className="h-[200px] w-full rounded-[16px] object-cover"
+            />
+          ) : (
+            <PhotoPlaceholder height={200}>
+              <IconPhoto size={30} />
+              <span className="text-[13.5px]">{post.photos[0].alt}</span>
+            </PhotoPlaceholder>
+          )}
         </Link>
       ) : null}
 

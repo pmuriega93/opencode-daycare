@@ -6,13 +6,14 @@ type ModalProps = {
   open: boolean;
   onClose: () => void;
   title: string;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   children: ReactNode;
 };
 
 const SIZE_CLASSES = {
   sm: "max-w-[480px]",
   md: "max-w-[520px]",
+  lg: "max-w-[580px]",
 } as const;
 
 export function Modal({

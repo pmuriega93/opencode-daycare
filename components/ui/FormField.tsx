@@ -13,6 +13,7 @@ type FormFieldProps = {
   autoFocus?: boolean;
   className?: string;
   inputClassName?: string;
+  labelClassName?: string;
 };
 
 export function FormField({
@@ -28,6 +29,7 @@ export function FormField({
   autoFocus = false,
   className = "",
   inputClassName = "",
+  labelClassName = "",
 }: FormFieldProps) {
   const id = useId();
   const errorId = `${id}-error`;
@@ -55,7 +57,11 @@ export function FormField({
 
   return (
     <label htmlFor={id} className={`block ${className}`}>
-      <span className="mb-2 block text-[12px] font-bold tracking-[0.7px] text-muted">
+      <span
+        className={`mb-2 block text-[12px] tracking-[0.7px] text-muted ${
+          labelClassName || "font-bold"
+        }`}
+      >
         {label}
       </span>
       {textarea ? (
