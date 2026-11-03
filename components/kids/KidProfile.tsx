@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { IconAlertTriangle, IconChevronLeft, IconSun } from "@/components/ui/Icons";
 import { ParentRow } from "@/components/kids/ParentRow";
 import { AgeDisplay } from "@/components/kids/AgeDisplay";
-import type { Kid } from "@/lib/types/kids";
+import { LinkParentDialog } from "@/components/kids/LinkParentDialog";
+import type { Kid, Parent } from "@/lib/types/kids";
 import { formatBirthdate } from "@/lib/types/kids";
 
 type KidProfileProps = {
@@ -14,6 +16,9 @@ type KidProfileProps = {
 };
 
 export function KidProfile({ kid }: KidProfileProps) {
+  // Alta en memoria: se pierde al recargar (por diseño, SPEC 05).
+  const [parents, setParents] = useState<Parent[]>(kid.parents);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const birthdateFormatted = formatBirthdate(kid.birthdate);
   const hasAllergyInfo =
     kid.allergies.length > 0 || (kid.notes && kid.notes.length > 0);
@@ -111,12 +116,13 @@ export function KidProfile({ kid }: KidProfileProps) {
               PADRES VINCULADOS
             </div>
             <div className="flex flex-col gap-3.5">
-              {kid.parents.map((parent) => (
+              {parents.map((parent) => (
                 <ParentRow key={parent.id} parent={parent} />
               ))}
-              <Link
-                href="/vincular-padre"
-                className="flex items-center gap-3 pt-2"
+              <button
+                type="button"
+                onClick={() => setLinkDialogOpen(true)}
+                className="flex items-center gap-3 pt-2 text-left"
               >
                 <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]">
                   <svg
@@ -135,11 +141,19 @@ export function KidProfile({ kid }: KidProfileProps) {
                 <span className="text-[14.5px] font-extrabold text-accent-2">
                   Vincular otro padre
                 </span>
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      <LinkParentDialog
+        open={linkDialogOpen}
+        kidName={kid.name}
+        parents={parents}
+        onClose={() => setLinkDialogOpen(false)}
+        onAdd={(parent) => setParents((prev) => [...prev, parent])}
+      />
     </>
   );
 }

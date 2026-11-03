@@ -1,12 +1,15 @@
 export type ParentStatus = "active" | "pending";
 
+export type ParentRole = "Mamá" | "Papá" | "Tutor/a";
+
 export type Parent = {
   id: string;
   name: string;
   initial: string;
   avatarBg: string;
-  role: string; // "Mamá" | "Papá"
+  role: string; // "Mamá" | "Papá" | "Tutor/a"
   status: ParentStatus;
+  email?: string; // opcional: los mocks de padres no lo tienen
 };
 
 export type Kid = {
@@ -83,4 +86,14 @@ export type AddKidFormValues = {
 
 export type AddKidFieldErrors = Partial<
   Record<"name" | "birthdate" | "room", string>
+>;
+
+export type LinkParentFormValues = {
+  name: string; // "Diego Fernández"
+  email: string; // "diego.fernandez@example.com"
+  role: ParentRole; // "Mamá" | "Papá" | "Tutor/a"
+};
+
+export type LinkParentFieldErrors = Partial<
+  Record<"name" | "email" | "role", string>
 >;

@@ -6,10 +6,22 @@ type ModalProps = {
   open: boolean;
   onClose: () => void;
   title: string;
+  size?: "sm" | "md";
   children: ReactNode;
 };
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+const SIZE_CLASSES = {
+  sm: "max-w-[480px]",
+  md: "max-w-[520px]",
+} as const;
+
+export function Modal({
+  open,
+  onClose,
+  title,
+  size = "md",
+  children,
+}: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const onCloseRef = useRef(onClose);
@@ -54,7 +66,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
           onCloseRef.current();
         }
       }}
-      className="inset-0 m-auto max-h-[85vh] w-[calc(100%_-_32px)] max-w-[520px] overflow-y-auto rounded-[24px] border border-line bg-canvas-soft p-0 text-text shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] backdrop:bg-[rgba(63,54,46,.45)]"
+      className={`inset-0 m-auto max-h-[85vh] w-[calc(100%_-_32px)] overflow-y-auto rounded-[24px] border border-line bg-canvas-soft p-0 text-text shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] backdrop:bg-[rgba(63,54,46,.45)] ${SIZE_CLASSES[size]}`}
     >
       <span id={titleId} className="sr-only">
         {title}
