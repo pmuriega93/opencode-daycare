@@ -14,7 +14,7 @@ App de guardería. Next.js **16.4.2** (App Router + Turbopack), React 19.3, Tail
 
 ## Estado actual
 
-- Rutas implementadas: `/` (feed, SPEC 01 + SPEC 06), `/kids` + `/kids/[id]` (SPEC 02 + SPEC 04/05), `/login` + `/activate-account` (SPEC 03). El resto del mapeo sigue sin ruta (404 por diseño hasta sus specs). No hay backend, API, base de datos ni tests. Hay un backend planeado pero **sin stack decidido en el repo**: no inventes endpoints ni instales dependencias de backend sin preguntar. Mientras tanto, poné los datos mock en un módulo aparte (`lib/` o `data/`) para poder enchufar la API después. El único estado global es el Context del feed (`components/feed/FeedProvider.tsx`, SPEC 06): publicaciones, modal de crear publicación y toast, todo en memoria y perdido al recargar.
+- Rutas implementadas: `/` (feed, SPEC 01 + SPEC 06), `/kids` + `/kids/[id]` (SPEC 02 + SPEC 04/05), `/login` + `/activate-account` (SPEC 03). El resto del mapeo sigue sin ruta (404 por diseño hasta sus specs). No hay backend, API, base de datos ni tests **todavía**. El backend objetivo es **Supabase** (Postgres + Auth; ver [Supabase](#supabase-backend-y-base-de-datos)) pero **no está conectado**: no hay `supabase-js`, `@supabase/ssr`, carpeta `supabase/` ni migraciones. Los datos siguen en mocks (`lib/mocks/` + `lib/*.ts`) para poder enchufar la API después. No inventes endpoints, tablas ni instales dependencias de backend sin preguntar. El único estado global es el Context del feed (`components/feed/FeedProvider.tsx`, SPEC 06): publicaciones, modal de crear publicación y toast, todo en memoria y perdido al recargar.
 - `references/` es material de diseño: **no es código de la app** (no lo imports, no lo lintees, no lo edites salvo que el usuario lo pida).
 
 ## Fuente de verdad del diseño
@@ -73,15 +73,30 @@ Los `href` entre mockups definen el flujo esperado (login → `/`, activar mi cu
 - **Tipos de ruta**: usá los helpers globales `PageProps<'/ruta'>`, `LayoutProps<'/ruta'>` (se generan en `.next/types/routes.d.ts`). Tras agregar una ruta, corrí `dev` o `build` para que existan los tipos.
 - Errores de prerender: el overlay y el log de `next dev` ofrecen 3 fixes etiquetados (stream / cache / block) y un botón **Copy prompt**. Leé el error page del link `Learn more` antes de inventar un fix.
 
+## Supabase (backend y base de datos)
+
+- **Stack objetivo: Supabase** (Postgres + Auth). Todavía **no hay nada aplicado ni conectado en el repo**: no hay dependencias (`supabase-js`, `@supabase/ssr`), ni carpeta `supabase/`, ni migraciones. No instales dependencias ni apliques cambios a la base sin confirmar.
+- El schema de referencia vive fuera del repo, en `../07-DB-Schema/opendaycare-database-schema.md` (reference `docs` declarada en `opencode.json`). Es un **diccionario de tablas a crear**, no la base real: `daycares`, `users`, `rooms`, `children`, `parent_children`, `invitations`, `posts`, `post_children`, `post_photos`, `reactions`, `comments`, `daily_summaries`, `devices`.
+- Convenciones del schema: PK `uuid` con `gen_random_uuid()`, `created_at`/`updated_at` `timestamptz`. **Todo lo persistido va en inglés** (enums, tags, códigos); las etiquetas visibles se traducen en la UI (español).
+- **Auth**: Supabase Auth maneja email/contraseña. `users` es el perfil de dominio, con el mismo UUID que `auth.users` (FK `ON DELETE CASCADE`); el alta se resuelve con un trigger `AFTER INSERT` sobre `auth.users` (`SECURITY DEFINER`) que lee `raw_user_meta_data`. No agregues `email` ni `password_hash` a `users`.
+- **Seguridad obligatoria**: RLS activo en toda tabla de un schema expuesto (`public`). Las políticas necesitan `TO authenticated` **más un predicado de ownership** (el rol solo no autoriza filas); `UPDATE` requiere `USING` y `WITH CHECK`; las vistas usan `security_invoker = true`. Nunca expongas `service_role`/secret key en el cliente: en Next.js todo `NEXT_PUBLIC_*` termina en el browser. No uses `user_metadata` para autorización (usá `app_metadata`).
+- **Secretos**: `.env` está gitignoreado (hoy solo contiene `SUPABASE_DB_PASSWORD`); `.env.template` es el único `.env*` versionado. No commitees valores reales.
+- **Antes de escribir SQL/RLS/migraciones**, cargá el skill `supabase-postgres-best-practices`; para cualquier tarea de Supabase, cargá `supabase`. Verificá features y sintaxis contra el changelog/docs actuales (Supabase cambia seguido), no contra memoria del modelo.
+
 ## MCPs
 
 - **Playwright MCP** (`opencode.json`): usalo para verificar pantallas contra los mockups. **Las capturas y cualquier output de Playwright van en la carpeta `.playwright-mcp`** (ya está en `.gitignore`).
-- **Context7**: sirve para traer info actualizada del framework.
+- **Supabase MCP**: configurado **globalmente** en `~/.config/opencode/opencode.json` (no en el `opencode.json` del repo), como server remoto `https://mcp.supabase.com/mcp` apuntando al proyecto del equipo. Sirve para inspeccionar/escribir SQL (`execute_sql`), migraciones (`apply_migration`, `list_migrations`), advisors de seguridad/performance, branches y logs. **Verificá siempre** el resultado con una query o los advisors. Las tools de escritura impactan el proyecto remoto: confirmá antes de aplicar migraciones.
+- **Context7**: sirve para traer info actualizada del framework y de Supabase.
 - El dev server de Next 16 expone su propio MCP en `/_next/mcp` (rutas, logs, `get_compilation_issues`, `compile_route`): preferilo a un `next build` completo para comprobar que algo compila.
 
-## Skill local
+## Skills instaladas
 
-- `.agents/skills/spec/SKILL.md` (instalado con `skills-lock.json`): método spec-driven. Para features grandes, primero escribí la spec en `specs/NN-slug.md` (la carpeta `specs/` todavía no existe; el skill la crea con `01-`). La spec es el contrato antes de codear.
+Registradas en `skills-lock.json` y materializadas en `.agents/skills/`:
+
+- **`spec`** (`klerith/fernando-skills`): método spec-driven. Para features grandes, escribí la spec en `specs/NN-slug.md` **antes** de codear: la carpeta ya existe con las specs 01–06 y `specs/.spec-config.yml` (`AutoCreateBranch: true`). También hay un subagente `spec-checker` en `.opencode/agents/spec-checker.md` que verifica los criterios de aceptación de un spec.
+- **`supabase`** (`supabase/agent-skills`): guía general de Supabase (productos, Auth, RLS, CLI, MCP, troubleshooting y checklist de seguridad). Cargalo ante cualquier tarea de Supabase.
+- **`supabase-postgres-best-practices`** (`supabase/agent-skills`): reglas de Postgres ordenadas por impacto (queries, conexiones, seguridad/RLS, schema, locks, acceso a datos, monitoreo, features avanzadas). Cargalo **antes** de crear/alterar tablas, escribir migraciones, políticas RLS, índices o funciones, y al diagnosticar queries lentas o locks. El detalle está en `.agents/skills/supabase-postgres-best-practices/references/`.
 
 ## Notas de repo
 
