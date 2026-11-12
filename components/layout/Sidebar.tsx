@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { NavLink } from "@/components/ui/NavLink";
 import { Avatar } from "@/components/ui/Avatar";
+import { signOut } from "@/lib/auth-actions";
+import { roleLabel } from "@/lib/auth";
+import type { AuthProfile } from "@/lib/types/auth";
 import {
   IconSun,
   IconPlus,
@@ -14,6 +17,7 @@ import {
 
 type SidebarProps = {
   active: string;
+  profile: AuthProfile | null;
   onNavigate?: () => void;
   onNewPost?: () => void;
   className?: string;
@@ -21,10 +25,18 @@ type SidebarProps = {
 
 export function Sidebar({
   active,
+  profile,
   onNavigate,
   onNewPost,
   className = "",
 }: SidebarProps) {
+  const initial = profile?.fullName.trim().charAt(0).toUpperCase() ?? "";
+  const roleLine = profile
+    ? profile.daycareName
+      ? `${roleLabel(profile.role)} · ${profile.daycareName}`
+      : roleLabel(profile.role)
+    : "";
+
   return (
     <aside
       className={`flex h-screen w-[248px] flex-none flex-col bg-surface px-4 py-6 ${className}`}
@@ -38,11 +50,19 @@ export function Sidebar({
         <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[12px] bg-gradient-to-br from-[#F8C3A8] to-[#F2937A]">
           <IconSun size={21} className="text-white" />
         </div>
-        <div>
+        <div className="min-w-0">
           <div className="font-fredoka text-[17px] font-semibold leading-none text-text">
             OpenDayCare
           </div>
-          <div className="mt-[2px] text-[11.5px] text-muted-2">Sala Soles</div>
+          {profile ? (
+            profile.daycareName ? (
+              <div className="mt-[2px] truncate text-[11.5px] text-muted-2">
+                {profile.daycareName}
+              </div>
+            ) : null
+          ) : (
+            <div className="mt-[6px] h-[9px] w-20 animate-pulse rounded-full bg-line-soft" />
+          )}
         </div>
       </Link>
 
@@ -88,21 +108,37 @@ export function Sidebar({
 
       <div className="mt-[10px] border-t border-line pt-[14px]">
         <div className="flex items-center gap-[11px] px-2 py-[6px]">
-          <Avatar initial="C" bg="#F2937A" textColor="#fff" size={38} />
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-[14px] font-extrabold text-text">
-              Caro Giménez
-            </div>
-            <div className="text-[12px] text-muted-2">Maestra · Soles</div>
-          </div>
-          <a
-            href="/login"
-            onClick={onNavigate}
-            title="Cerrar sesión"
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-canvas text-muted"
-          >
-            <IconLogout size={16} />
-          </a>
+          {profile ? (
+            <>
+              <Avatar initial={initial} bg="#F2937A" textColor="#fff" size={38} />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[14px] font-extrabold text-text">
+                  {profile.fullName}
+                </div>
+                <div className="truncate text-[12px] text-muted-2">
+                  {roleLine}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="h-[38px] w-[38px] flex-none animate-pulse rounded-full bg-line-soft" />
+              <div className="min-w-0 flex-1">
+                <div className="h-[11px] w-24 animate-pulse rounded-full bg-line-soft" />
+                <div className="mt-[7px] h-[9px] w-28 animate-pulse rounded-full bg-line-soft" />
+              </div>
+            </>
+          )}
+          <form action={signOut}>
+            <button
+              type="submit"
+              title="Cerrar sesión"
+              aria-label="Cerrar sesión"
+              className="flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-[10px] bg-canvas text-muted"
+            >
+              <IconLogout size={16} />
+            </button>
+          </form>
         </div>
       </div>
     </aside>

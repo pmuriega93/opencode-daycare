@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { StaffLayout } from "@/components/layout/StaffLayout";
 import { KidProfile } from "@/components/kids/KidProfile";
 import { kids, getKidById } from "@/lib/mocks/kids";
 
@@ -14,7 +14,7 @@ async function KidProfileContent({ params }: { params: Promise<{ id: string }> }
 
   if (!kid) {
     return (
-      <AppLayout active="kids">
+      <StaffLayout active="kids">
         <div className="mx-auto w-full max-w-[820px] px-5 py-6 sm:px-8 lg:px-[40px] lg:py-[34px] lg:pb-[80px]">
           <Link
             href="/kids"
@@ -43,16 +43,16 @@ async function KidProfileContent({ params }: { params: Promise<{ id: string }> }
             </p>
           </div>
         </div>
-      </AppLayout>
+      </StaffLayout>
     );
   }
 
   return (
-    <AppLayout active="kids">
+    <StaffLayout active="kids">
       <div className="mx-auto w-full max-w-[820px] px-5 py-6 sm:px-8 lg:px-[40px] lg:py-[34px] lg:pb-[80px]">
         <KidProfile kid={kid} />
       </div>
-    </AppLayout>
+    </StaffLayout>
   );
 }
 
@@ -60,11 +60,11 @@ export default function KidProfilePage({ params }: PageProps) {
   return (
     <Suspense
       fallback={
-        <AppLayout active="kids">
+        <StaffLayout active="kids">
           <div className="mx-auto w-full max-w-[820px] px-5 py-6 sm:px-8 lg:px-[40px] lg:py-[34px] lg:pb-[80px]">
             <div className="py-20 text-center text-muted">Cargando…</div>
           </div>
-        </AppLayout>
+        </StaffLayout>
       }
     >
       <KidProfileContent params={params} />

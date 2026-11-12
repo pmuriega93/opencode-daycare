@@ -8,7 +8,8 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Excluye assets estáticos e imágenes para no correr Supabase en cada uno.
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Excluye `_next/` completo (assets, `/_next/mcp` y HMR) más el favicon y
+    // las imágenes para no correr Supabase en cada archivo estático.
+    "/((?!_next/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

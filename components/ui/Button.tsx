@@ -7,6 +7,7 @@ type ButtonProps = {
   children: ReactNode;
   className?: string;
   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
   onClick?: () => void;
 };
 
@@ -16,10 +17,11 @@ export function Button({
   children,
   className = "",
   type = "button",
+  disabled = false,
   onClick,
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-[14px] font-extrabold text-[14.5px] transition-opacity hover:opacity-95";
+    "inline-flex items-center justify-center gap-2 rounded-[14px] font-extrabold text-[14.5px] transition-opacity hover:opacity-95 disabled:pointer-events-none disabled:opacity-60";
   const styles =
     variant === "primary"
       ? "bg-gradient-to-b from-button-from to-button-to text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)] px-[12px] py-[12px]"
@@ -34,7 +36,12 @@ export function Button({
     );
   }
   return (
-    <button type={type} className={cls} onClick={onClick}>
+    <button
+      type={type}
+      className={cls}
+      disabled={disabled}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
