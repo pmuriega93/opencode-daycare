@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+import { StaffLayout } from "@/components/layout/StaffLayout";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { FeedComposer } from "@/components/feed/FeedComposer";
 import { FeedContent } from "@/components/feed/FeedContent";
@@ -6,7 +6,7 @@ import { headerSummary, user } from "@/lib/mocks/feed";
 
 export default function Home() {
   return (
-    <AppLayout active="feed">
+    <StaffLayout active="feed">
       <div className="mx-auto w-full max-w-[760px] px-5 py-6 sm:px-8 lg:px-[40px] lg:py-[34px] lg:pb-[80px]">
         <PageHeader
           eyebrow="GUARDERÍA · SALA SOLES"
@@ -16,6 +16,6 @@ export default function Home() {
         <FeedComposer initial={user.initial} />
         <FeedContent />
       </div>
-    </AppLayout>
+    </StaffLayout>
   );
 }

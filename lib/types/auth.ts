@@ -1,3 +1,13 @@
+export type UserRole = "staff" | "parent" | "admin";
+
+export type AuthProfile = {
+  fullName: string;
+  role: UserRole;
+  daycareName: string | null;
+};
+
+export type LoginState = { error: string | null };
+
 export type Invitation = {
   code: string; // "7K4P9"
   email: string; // "lucia.fernandez@gmail.com"

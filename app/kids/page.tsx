@@ -1,10 +1,10 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+import { StaffLayout } from "@/components/layout/StaffLayout";
 import { KidsPageContent } from "@/components/kids/KidsPageContent";
 
 export default function KidsPage() {
   return (
-    <AppLayout active="kids">
+    <StaffLayout active="kids">
       <KidsPageContent />
-    </AppLayout>
+    </StaffLayout>
   );
 }

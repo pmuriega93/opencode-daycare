@@ -2,7 +2,9 @@ import { useId, type ChangeEvent } from "react";
 
 type FormFieldProps = {
   label: string;
+  name?: string;
   type?: "text" | "email" | "password";
+  autoComplete?: string;
   defaultValue?: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -18,7 +20,9 @@ type FormFieldProps = {
 
 export function FormField({
   label,
+  name,
   type = "text",
+  autoComplete,
   defaultValue,
   value,
   onChange,
@@ -46,6 +50,8 @@ export function FormField({
 
   const shared = {
     id,
+    name,
+    autoComplete,
     placeholder,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": error ? errorId : undefined,
