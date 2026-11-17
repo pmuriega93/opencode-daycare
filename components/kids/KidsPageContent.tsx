@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { IconPlus } from "@/components/ui/Icons";
 import { KidsList } from "@/components/kids/KidsList";
 import { AddKidDialog } from "@/components/kids/AddKidDialog";
-import { kids as mockKids } from "@/lib/mocks/kids";
-import type { Kid } from "@/lib/types/kids";
+import type { Kid, Room } from "@/lib/types/kids";
 
-export function KidsPageContent() {
-  // Alta en memoria: se pierde al recargar (por diseño, SPEC 04).
-  const [kids, setKids] = useState<Kid[]>(mockKids);
+type KidsPageContentProps = {
+  kids: Kid[];
+  rooms: Room[];
+};
+
+export function KidsPageContent({ kids, rooms }: KidsPageContentProps) {
+  const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
@@ -23,12 +27,15 @@ export function KidsPageContent() {
           Agregar niño
         </Button>
       </div>
-      <KidsList kids={kids} />
+      <KidsList kids={kids} rooms={rooms} />
       <AddKidDialog
         open={dialogOpen}
-        kids={kids}
+        rooms={rooms}
         onClose={() => setDialogOpen(false)}
-        onAdd={(kid) => setKids((prev) => [...prev, kid])}
+        onAdded={() => {
+          setDialogOpen(false);
+          router.refresh();
+        }}
       />
     </div>
   );

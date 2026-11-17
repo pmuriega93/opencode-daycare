@@ -1,16 +1,21 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { StaffLayout } from "@/components/layout/StaffLayout";
 import { KidProfile } from "@/components/kids/KidProfile";
-import { kids, getKidById } from "@/lib/mocks/kids";
+import { getKid } from "@/lib/kids-server";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 async function KidProfileContent({ params }: { params: Promise<{ id: string }> }) {
+  // El perfil depende de la sesión (RLS): renderizarlo en request time evita
+  // que el prerender evalúe componentes cliente con valores inestables.
+  await connection();
+
   const { id } = await params;
-  const kid = getKidById(id);
+  const kid = await getKid(id);
 
   if (!kid) {
     return (
@@ -70,8 +75,4 @@ export default function KidProfilePage({ params }: PageProps) {
       <KidProfileContent params={params} />
     </Suspense>
   );
-}
-
-export function generateStaticParams() {
-  return kids.map((kid) => ({ id: kid.id }));
 }

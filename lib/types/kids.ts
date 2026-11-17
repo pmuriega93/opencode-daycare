@@ -13,7 +13,7 @@ export type Parent = {
 };
 
 export type Kid = {
-  id: string; // slug: "mateo-fernandez"
+  id: string; // uuid de public.children
   name: string;
   initial: string;
   avatarBg: string;
@@ -24,6 +24,35 @@ export type Kid = {
   allergies: string[]; // ["maní"]
   notes?: string; // free-text health notes
   parents: Parent[];
+};
+
+export type ChildStatus = "active" | "archived";
+
+/** Fila de `public.rooms` tal como la devuelve la query. */
+export type RoomRow = { id: string; name: string };
+
+/** Fila de `public.children` con la sala embebida (`rooms(...)`). */
+export type ChildRow = {
+  id: string;
+  full_name: string;
+  birth_date: string; // "2022-03-12"
+  enrolled_at: string; // "2025-02-01"
+  medical_notes: string | null;
+  allergy_tags: string[]; // ["peanut"]
+  status: ChildStatus;
+  rooms: { id: string; name: string } | { id: string; name: string }[] | null;
+};
+
+/** Forma de sala que consume la UI. */
+export type Room = { id: string; name: string };
+
+/** Datos normalizados para insertar en `public.children`. */
+export type NewChildInput = {
+  fullName: string;
+  birthDate: string; // "YYYY-MM-DD"
+  roomId: string;
+  allergyTags: string[]; // ["peanut"]
+  medicalNotes: string | null;
 };
 
 /**
@@ -79,7 +108,7 @@ export function getParentCountLabel(parents: Parent[]): string {
 export type AddKidFormValues = {
   name: string; // "Martina López"
   birthdate: string; // valor con máscara: "12/03/2022"
-  room: string; // "" | "Soles" | "Lunas" | "Estrellas"
+  roomId: string; // uuid de la sala ("" cuando no se eligió)
   allergies: string; // texto libre: "Maní, Lactosa"
   notes: string; // texto libre
 };

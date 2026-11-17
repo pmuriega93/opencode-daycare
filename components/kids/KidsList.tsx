@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { KidCard } from "@/components/kids/KidCard";
-import { salas } from "@/lib/mocks/kids";
-import type { Kid } from "@/lib/types/kids";
+import type { Kid, Room } from "@/lib/types/kids";
 
 type KidsListProps = {
   kids: Kid[];
+  rooms: Room[];
 };
 
-export function KidsList({ kids }: KidsListProps) {
+export function KidsList({ kids, rooms }: KidsListProps) {
   const [query, setQuery] = useState("");
 
   const trimmedQuery = query.trim();
@@ -20,11 +20,11 @@ export function KidsList({ kids }: KidsListProps) {
       })
     : kids;
 
-  // Una sección por sala, en el orden de `salas`; las vacías se ocultan.
-  const sections = salas
+  // Una sección por sala de la DB, en el orden recibido; las vacías se ocultan.
+  const sections = rooms
     .map((room) => ({
       room,
-      kids: filteredKids.filter((k) => k.room === room),
+      kids: filteredKids.filter((k) => k.room === room.name),
     }))
     .filter((section) => section.kids.length > 0);
 
@@ -54,10 +54,10 @@ export function KidsList({ kids }: KidsListProps) {
       </div>
 
       {sections.map(({ room, kids: roomKids }) => (
-        <section key={room} className="mb-[26px] last:mb-0">
+        <section key={room.id} className="mb-[26px] last:mb-0">
           <div className="mb-3.5 flex items-center gap-3">
             <span className="text-[12.5px] font-extrabold tracking-[0.8px] text-text">
-              SALA {room.toUpperCase()}
+              SALA {room.name.toUpperCase()}
             </span>
             <span className="text-[13px] text-muted-2">
               {roomKids.length} {roomKids.length === 1 ? "niño" : "niños"}

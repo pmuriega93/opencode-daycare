@@ -1,11 +1,13 @@
 import { useId, type ChangeEvent } from "react";
 import { IconChevronDown } from "@/components/ui/Icons";
 
+type SelectOption = string | { value: string; label: string };
+
 type SelectFieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  options: readonly string[];
+  options: readonly SelectOption[];
   placeholder: string;
   error?: string;
   className?: string;
@@ -46,11 +48,18 @@ export function SelectField({
           <option value="" disabled>
             {placeholder}
           </option>
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
+          {options.map((option) => {
+            const { value: optionValue, label } =
+              typeof option === "string"
+                ? { value: option, label: option }
+                : option;
+
+            return (
+              <option key={optionValue} value={optionValue}>
+                {label}
+              </option>
+            );
+          })}
         </select>
         <IconChevronDown
           size={16}

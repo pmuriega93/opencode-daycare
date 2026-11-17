@@ -1,85 +1,105 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
 import { SelectField } from "@/components/ui/SelectField";
-import { salas } from "@/lib/mocks/kids";
-import { buildKid, maskBirthdate, validateAddKid } from "@/lib/kids";
+import { addChild } from "@/lib/kids-actions";
+import { maskBirthdate, validateAddKid } from "@/lib/kids";
 import type {
   AddKidFieldErrors,
   AddKidFormValues,
-  Kid,
+  Room,
 } from "@/lib/types/kids";
 
 type AddKidDialogProps = {
   open: boolean;
-  kids: Kid[];
+  rooms: Room[];
   onClose: () => void;
-  onAdd: (kid: Kid) => void;
+  onAdded: () => void;
 };
 
 const EMPTY_VALUES: AddKidFormValues = {
   name: "",
   birthdate: "",
-  room: "",
+  roomId: "",
   allergies: "",
   notes: "",
 };
 
-function isValidationErrorField(
+function errorFieldFor(
   field: keyof AddKidFormValues,
-): field is keyof AddKidFieldErrors {
-  return field === "name" || field === "birthdate" || field === "room";
+): keyof AddKidFieldErrors | null {
+  if (field === "name" || field === "birthdate") return field;
+  if (field === "roomId") return "room";
+  return null;
 }
 
 export function AddKidDialog({
   open,
-  kids,
+  rooms,
   onClose,
-  onAdd,
+  onAdded,
 }: AddKidDialogProps) {
   return (
     <Modal open={open} onClose={onClose} title="Agregar niño">
       {/* Remontar el form en cada apertura resetea values y errors. */}
-      {open && <AddKidForm kids={kids} onClose={onClose} onAdd={onAdd} />}
+      {open && (
+        <AddKidForm rooms={rooms} onClose={onClose} onAdded={onAdded} />
+      )}
     </Modal>
   );
 }
 
 type AddKidFormProps = {
-  kids: Kid[];
+  rooms: Room[];
   onClose: () => void;
-  onAdd: (kid: Kid) => void;
+  onAdded: () => void;
 };
 
-function AddKidForm({ kids, onClose, onAdd }: AddKidFormProps) {
+function AddKidForm({ rooms, onClose, onAdded }: AddKidFormProps) {
   const [values, setValues] = useState<AddKidFormValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<AddKidFieldErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const setField = (field: keyof AddKidFormValues, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
     // Editar un campo con error limpia el error de ese campo.
     setErrors((prev) => {
-      if (!isValidationErrorField(field) || prev[field] === undefined) {
+      const errorField = errorFieldFor(field);
+      if (!errorField || prev[errorField] === undefined) {
         return prev;
       }
       const next = { ...prev };
-      delete next[field];
+      delete next[errorField];
       return next;
     });
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const today = new Date();
-    const nextErrors = validateAddKid(values, today);
+    if (isPending) return;
+
+    const nextErrors = validateAddKid(values, new Date());
     if (nextErrors.name || nextErrors.birthdate || nextErrors.room) {
       setErrors(nextErrors);
       return;
     }
-    onAdd(buildKid(values, kids, today));
-    onClose();
+
+    setFormError(null);
+
+    startTransition(async () => {
+      const result = await addChild(values);
+
+      if (result.status === "success") {
+        onAdded();
+        return;
+      }
+
+      setErrors(result.errors);
+      setFormError(result.formError ?? null);
+    });
   };
 
   return (
@@ -88,18 +108,31 @@ function AddKidForm({ kids, onClose, onAdd }: AddKidFormProps) {
         <button
           type="button"
           onClick={onClose}
-          className="text-[15px] font-bold text-muted"
+          disabled={isPending}
+          className="text-[15px] font-bold text-muted disabled:opacity-50"
         >
           Cancelar
         </button>
         <span className="font-fredoka text-[18px] font-semibold text-text">
           Agregar niño
         </span>
-        <button type="submit" className="text-[15px] font-extrabold text-accent">
-          Guardar
+        <button
+          type="submit"
+          disabled={isPending}
+          className="text-[15px] font-extrabold text-accent disabled:opacity-50"
+        >
+          {isPending ? "Guardando…" : "Guardar"}
         </button>
       </div>
       <div className="px-[26px] py-6">
+        {formError && (
+          <div
+            role="alert"
+            className="mb-[18px] rounded-[14px] bg-[#FBDAD6] px-4 py-3 text-[13.5px] font-bold text-[#C5413A]"
+          >
+            {formError}
+          </div>
+        )}
         <FormField
           label="NOMBRE COMPLETO"
           placeholder="Ej. Martina López"
@@ -121,9 +154,9 @@ function AddKidForm({ kids, onClose, onAdd }: AddKidFormProps) {
           <SelectField
             label="SALA"
             placeholder="Seleccioná una sala"
-            options={salas}
-            value={values.room}
-            onChange={(value) => setField("room", value)}
+            options={rooms.map((room) => ({ value: room.id, label: room.name }))}
+            value={values.roomId}
+            onChange={(value) => setField("roomId", value)}
             error={errors.room}
             className="sm:flex-1"
           />
