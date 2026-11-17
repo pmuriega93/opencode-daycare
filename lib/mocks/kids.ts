@@ -181,14 +181,5 @@ export const kids: Kid[] = [
   },
 ];
 
-/**
- * Find a kid by its slug ID
- */
-export function getKidById(id: string): Kid | undefined {
-  return kids.find((k) => k.id === id);
-}
-
-/**
- * Salas disponibles para el alta de niños (mock).
- */
-export const salas = ["Soles", "Lunas", "Estrellas"] as const;
+// El feed mock (CreatePostDialog) sigue etiquetando niños con estos datos:
+// SPEC 10 conecta `/kids` a Supabase, pero el feed todavía no.

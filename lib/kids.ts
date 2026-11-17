@@ -1,12 +1,13 @@
 import type {
   AddKidFieldErrors,
   AddKidFormValues,
+  ChildRow,
   Kid,
 } from "./types/kids";
 
 const BIRTHDATE_PATTERN = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 
-const MONTHS_ES = [
+const MONTHS_SHORT = [
   "ene",
   "feb",
   "mar",
@@ -30,7 +31,130 @@ const AVATAR_ROTATION = [
   { bg: "#C9B6E8", text: "#7B5FC0" },
 ] as const;
 
+/**
+ * Diccionario español → tag inglés para el texto libre del modal.
+ * Los tags se persisten en inglés (convención del schema).
+ */
+const ALLERGY_TO_TAG: Record<string, string> = {
+  mani: "peanut",
+  lactosa: "lactose",
+  "frutos secos": "nuts",
+  gluten: "gluten",
+  huevo: "egg",
+  soja: "soy",
+  pescado: "fish",
+  mariscos: "shellfish",
+};
+
+/** Tag inglés → etiqueta visible en español. */
+const TAG_TO_LABEL: Record<string, string> = {
+  peanut: "Maní",
+  lactose: "Lactosa",
+  nuts: "Frutos secos",
+  gluten: "Gluten",
+  egg: "Huevo",
+  soy: "Soja",
+  fish: "Pescado",
+  shellfish: "Mariscos",
+  strawberry: "Frutilla",
+};
+
 export type ParsedBirthdate = { day: number; month: number; year: number };
+
+function stripAccents(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function toAsciiSlug(value: string): string {
+  return stripAccents(value)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Traduce el texto libre de la UI a tags en inglés, sin duplicados.
+ * Separa por coma, trim, minúsculas y sin acentos; "maní" → "peanut".
+ * Desconocidos: slug ASCII ("Frutilla" → "frutilla"); vacíos se descartan.
+ */
+export function parseAllergyTags(raw: string): string[] {
+  const tags: string[] = [];
+
+  for (const piece of raw.split(",")) {
+    const key = stripAccents(piece).toLowerCase().trim().replace(/\s+/g, " ");
+    if (!key) continue;
+
+    const tag = ALLERGY_TO_TAG[key] ?? toAsciiSlug(piece);
+    if (!tag || tags.includes(tag)) continue;
+
+    tags.push(tag);
+  }
+
+  return tags;
+}
+
+/**
+ * Tag → etiqueta visible: peanut → "Maní", lactose → "Lactosa", …
+ * Desconocido: slug en mayúsculas ("kiwi" → "KIWI").
+ */
+export function allergyTagLabel(tag: string): string {
+  const key = stripAccents(tag).toLowerCase().trim();
+  const label = TAG_TO_LABEL[key];
+  if (label) return label;
+
+  const slug = toAsciiSlug(tag);
+  return (slug || tag).toUpperCase();
+}
+
+/**
+ * "2025-02-01" → "feb 2025" (mismo formato que los mocks).
+ */
+export function formatMonthYear(isoDate: string): string {
+  const [year, month] = isoDate.split("-");
+  const monthIndex = Number(month) - 1;
+  const monthLabel = MONTHS_SHORT[monthIndex];
+
+  if (!year || !monthLabel) return isoDate;
+
+  return `${monthLabel} ${year}`;
+}
+
+/**
+ * Hash determinístico del UUID para elegir el avatar sin persistir cosmética.
+ */
+function avatarForId(id: string): (typeof AVATAR_ROTATION)[number] {
+  let hash = 0;
+  for (let index = 0; index < id.length; index++) {
+    hash = (hash * 31 + id.charCodeAt(index)) >>> 0;
+  }
+
+  return AVATAR_ROTATION[hash % AVATAR_ROTATION.length];
+}
+
+/**
+ * Adapta una fila de `public.children` (con la sala embebida) al shape `Kid`
+ * que ya consumen `KidCard`, `KidsList` y `KidProfile`.
+ */
+export function toKidView(row: ChildRow): Kid {
+  const room = Array.isArray(row.rooms) ? row.rooms[0] : row.rooms;
+  const avatar = avatarForId(row.id);
+  const name = row.full_name.trim();
+
+  return {
+    id: row.id,
+    name,
+    initial: name.charAt(0).toUpperCase(),
+    avatarBg: avatar.bg,
+    avatarText: avatar.text,
+    birthdate: row.birth_date,
+    room: room?.name ?? "",
+    entryDate: formatMonthYear(row.enrolled_at),
+    allergies: row.allergy_tags.map(allergyTagLabel),
+    notes: row.medical_notes?.trim() || undefined,
+    parents: [],
+  };
+}
 
 /**
  * Solo dígitos; inserta "/" tras el día y el mes. Máx. 10 caracteres.
@@ -95,64 +219,9 @@ export function validateAddKid(
     }
   }
 
-  if (!values.room) {
+  if (!values.roomId) {
     errors.room = "Seleccioná una sala";
   }
 
   return errors;
-}
-
-function slugify(name: string): string {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function uniqueId(base: string, existing: Kid[]): string {
-  const taken = new Set(existing.map((kid) => kid.id));
-  if (!taken.has(base)) return base;
-  let suffix = 2;
-  while (taken.has(`${base}-${suffix}`)) suffix++;
-  return `${base}-${suffix}`;
-}
-
-/**
- * Construye el Kid en memoria a partir de un form ya validado.
- * Solo se llama si validateAddKid devolvió {}.
- */
-export function buildKid(
-  values: AddKidFormValues,
-  existing: Kid[],
-  today: Date,
-): Kid {
-  const parsed = parseBirthdate(values.birthdate);
-  if (!parsed) {
-    throw new Error("buildKid: la fecha de nacimiento no es válida");
-  }
-
-  const name = values.name.trim();
-  const avatar = AVATAR_ROTATION[existing.length % AVATAR_ROTATION.length];
-
-  return {
-    id: uniqueId(slugify(name) || "nino", existing),
-    name,
-    initial: name.charAt(0).toUpperCase(),
-    avatarBg: avatar.bg,
-    avatarText: avatar.text,
-    birthdate: `${parsed.year}-${String(parsed.month).padStart(2, "0")}-${String(
-      parsed.day,
-    ).padStart(2, "0")}`,
-    room: values.room,
-    entryDate: `${MONTHS_ES[today.getMonth()]} ${today.getFullYear()}`,
-    allergies: values.allergies
-      .split(",")
-      .map((allergy) => allergy.trim().toLowerCase())
-      .filter((allergy) => allergy.length > 0),
-    notes: values.notes.trim() || undefined,
-    parents: [],
-  };
 }
